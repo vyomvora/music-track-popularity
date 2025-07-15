@@ -33,7 +33,6 @@ class SpotifyPopularityPredictor:
             self.encoder = joblib.load(encoder_path)
         
         print(f"✅ Model loaded: {self.feature_info['model_name']}")
-        print(f"   Test R²: {self.feature_info['model_metrics']['Test_R2']:.4f}")
 
     def prepare_features(self, data):
         """Prepare features for prediction with proper preprocessing"""
@@ -118,7 +117,7 @@ def load_models():
     model_dir = 'trained_models'
     
     models = {}
-    model_names = ['ridge', 'linear', 'rf']  # Update with your actual model names
+    model_names = ['ridge', 'linear', 'rf']
     
     for model_name in model_names:
         try:
@@ -203,14 +202,11 @@ def main():
         }])
         
         try:
-            # Make prediction
             predictor = models[model_choice]
             prediction = predictor.predict(input_data)[0]
             
-            # Display result
             st.success(f"Predicted Popularity: {prediction:.1f}/100")
             
-            # Show model info
             st.info(f"Model: {predictor.feature_info['model_name']}")
             
         except Exception as e:
