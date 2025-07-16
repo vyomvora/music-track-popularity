@@ -22,7 +22,6 @@ class SpotifyPopularityPredictor:
         with open(categorical_mappings_path, 'rb') as f:
             self.categorical_mappings = pickle.load(f)
         
-        # Load preprocessors if available
         self.scaler = None
         self.encoder = None
         
@@ -32,8 +31,6 @@ class SpotifyPopularityPredictor:
         if encoder_path and os.path.exists(encoder_path):
             self.encoder = joblib.load(encoder_path)
         
-        print(f"✅ Model loaded: {self.feature_info['model_name']}")
-
     def prepare_features(self, data):
         """Prepare features for prediction with proper preprocessing"""
         df = data.copy()
@@ -83,20 +80,10 @@ class SpotifyPopularityPredictor:
         # Handle categorical features
         df_cat = df[categorical_features].fillna(df[categorical_features].mode().iloc[0] if not df[categorical_features].empty else 'Unknown')
         
-        # Apply preprocessing if available
-        if self.scaler is not None:
-            df_num_scaled = self.scaler.transform(df_num)
-        else:
-            # Fallback: simple standardization (not recommended for production)
-            df_num_scaled = (df_num - df_num.mean()) / df_num.std()
-        
-        if self.encoder is not None:
-            df_cat_encoded = self.encoder.transform(df_cat)
-        else:
-            # Fallback: simple one-hot encoding (not recommended for production)
-            encoder = OneHotEncoder(drop='first', sparse_output=False, handle_unknown='ignore')
-            df_cat_encoded = encoder.fit_transform(df_cat)
-        
+        df_num_scaled = self.scaler.transform(df_num)
+
+        df_cat_encoded = self.encoder.transform(df_cat)
+
         # Combine features
         if isinstance(df_num_scaled, np.ndarray) and isinstance(df_cat_encoded, np.ndarray):
             X_processed = np.hstack([df_num_scaled, df_cat_encoded])
@@ -136,7 +123,7 @@ def load_models():
 
 # Main app
 def main():
-    st.title("Spotify Popularity Predictor")
+    st.title("Spotify Track Popularity Predictor")
     st.write("Predict track popularity using audio features")
     
     # Load models
@@ -206,9 +193,7 @@ def main():
             prediction = predictor.predict(input_data)[0]
             
             st.success(f"Predicted Popularity: {prediction:.1f}/100")
-            
-            st.info(f"Model: {predictor.feature_info['model_name']}")
-            
+                        
         except Exception as e:
             st.error(f"Error making prediction: {e}")
 
