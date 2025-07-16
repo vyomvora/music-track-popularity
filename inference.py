@@ -104,7 +104,7 @@ def load_models():
     model_dir = 'trained_models'
     
     models = {}
-    model_names = ['ridge', 'linear', 'rf']
+    model_names = ['ridge', 'gd', 'rf']
     
     for model_name in model_names:
         try:
